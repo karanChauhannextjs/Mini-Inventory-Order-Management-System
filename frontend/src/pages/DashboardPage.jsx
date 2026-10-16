@@ -6,15 +6,18 @@ import OrderStatusBadge from '@/components/OrderStatusBadge';
 import PageHeader from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import EmptyListBanner from '@/components/EmptyListBanner';
 import { DashboardStatsSkeleton } from '@/components/DashboardSkeleton';
 import { queryKeys } from '@/lib/query-keys';
 import { formatDate, money } from '@/utils/format';
 
 export default function DashboardPage() {
-  const { data, isLoading } = useQuery({
+  const { data: dashboardRes, isLoading } = useQuery({
     queryKey: queryKeys.dashboard,
-    queryFn: async () => (await getDashboard()).data,
+    queryFn: getDashboard,
   });
+  const data = dashboardRes?.data;
+  const workspaceEmpty = dashboardRes?.isEmpty === true;
 
   const columns = [
     {
@@ -52,6 +55,13 @@ export default function DashboardPage() {
     <div>
       <PageHeader title="Dashboard" description="Overview of inventory, orders, and confirmed sales" />
 
+      {!isLoading && workspaceEmpty && (
+        <EmptyListBanner
+          title="Welcome — your workspace is empty"
+          description={dashboardRes?.message || 'Add categories and products, then create customers and orders.'}
+        />
+      )}
+
       {isLoading ? (
         <DashboardStatsSkeleton />
       ) : (
@@ -87,7 +97,11 @@ export default function DashboardPage() {
             columns={columns}
             data={data?.recentOrders ?? []}
             loading={isLoading}
-            emptyMessage="No orders yet. Create one from the Orders page."
+            emptyMessage={
+              workspaceEmpty
+                ? 'No orders yet — they will appear here after you create one.'
+                : 'No recent orders to show.'
+            }
           />
         </CardContent>
       </Card>

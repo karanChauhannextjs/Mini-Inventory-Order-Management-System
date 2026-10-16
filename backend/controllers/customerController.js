@@ -5,6 +5,7 @@ const { isValidObjectId, parsePagination } = require('../utils/validators');
 const { validateCustomerPayload } = require('../utils/fieldValidators');
 const { ownerQuery, findOwnedById } = require('../utils/ownership');
 const { caseInsensitiveRegex } = require('../utils/search');
+const { sendPaginatedList } = require('../utils/listResponse');
 
 const createCustomer = async (req, res) => {
   const customer = await Customer.create({
@@ -34,16 +35,11 @@ const getCustomers = async (req, res) => {
     Customer.countDocuments(filter),
   ]);
 
-  res.status(200).json({
-    success: true,
-    message: 'Customers retrieved successfully',
-    data: customers,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit) || 1,
-    },
+  sendPaginatedList(res, 'customers', customers, {
+    page,
+    limit,
+    total,
+    pages: Math.ceil(total / limit) || 1,
   });
 };
 

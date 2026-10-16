@@ -4,6 +4,7 @@ import { MoreHorizontal, Plus } from 'lucide-react';
 import { createCustomer, deleteCustomer, getCustomers, updateCustomer } from '@/api';
 import DataTable from '@/components/DataTable';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
+import EmptyListBanner from '@/components/EmptyListBanner';
 import PageHeader from '@/components/PageHeader';
 import TablePagination from '@/components/TablePagination';
 import ClearableInput from '@/components/ClearableInput';
@@ -28,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useDebounce } from '@/hooks/useDebounce';
 import { invalidateCustomers } from '@/lib/query-invalidation';
+import { tableEmptyMessage } from '@/lib/list-empty';
 import { queryKeys } from '@/lib/query-keys';
 import { notifyError, notifySuccess } from '@/lib/toast';
 import { FieldError, RequiredLabel } from '@/components/FormHelpers';
@@ -150,6 +152,15 @@ export default function CustomersPage() {
   );
 
   const pagination = data?.pagination ?? { page: 1, pages: 1, total: 0 };
+  const hasFilters = Boolean(debouncedSearch);
+  const listEmpty = data?.isEmpty === true && !hasFilters;
+  const customersEmptyMessage = tableEmptyMessage(data?.message, {
+    filtered: hasFilters,
+    fallback: {
+      empty: 'No customers yet. Add a customer before creating orders.',
+      filtered: 'No customers match your search.',
+    },
+  });
 
   return (
     <div>
@@ -182,9 +193,18 @@ export default function CustomersPage() {
         </CardContent>
       </Card>
 
+      {!isLoading && listEmpty && (
+        <EmptyListBanner title="No customers yet" description={data?.message} />
+      )}
+
       <Card>
         <CardContent className="p-0">
-          <DataTable columns={columns} data={data?.data ?? []} loading={isLoading} />
+          <DataTable
+            columns={columns}
+            data={data?.data ?? []}
+            loading={isLoading}
+            emptyMessage={customersEmptyMessage}
+          />
           <TablePagination
             page={pagination.page}
             pages={pagination.pages}

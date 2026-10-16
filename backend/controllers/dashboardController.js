@@ -22,9 +22,14 @@ const getDashboard = async (req, res) => {
         .limit(5),
     ]);
 
+  const isEmpty = totalProducts === 0 && totalOrders === 0;
+
   res.status(200).json({
     success: true,
-    message: 'Dashboard summary retrieved successfully',
+    message: isEmpty
+      ? 'No data yet. Add categories, products, and customers to get started.'
+      : 'Dashboard summary retrieved successfully',
+    isEmpty,
     data: {
       totalProducts,
       totalOrders,

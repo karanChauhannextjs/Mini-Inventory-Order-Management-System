@@ -7,6 +7,7 @@ const { validateProductPayload } = require('../utils/fieldValidators');
 const { assignUniqueSku } = require('../utils/skuGenerator');
 const { ownerQuery, findOwnedById } = require('../utils/ownership');
 const { caseInsensitiveRegex } = require('../utils/search');
+const { sendPaginatedList } = require('../utils/listResponse');
 
 const ALLOWED_SORT_FIELDS = ['name', 'sku', 'price', 'stock', 'status', 'createdAt'];
 const ALLOWED_UPDATE_FIELDS = ['name', 'price', 'stock', 'status'];
@@ -106,16 +107,11 @@ const getProducts = async (req, res) => {
     Product.countDocuments(filter),
   ]);
 
-  res.status(200).json({
-    success: true,
-    message: 'Products retrieved successfully',
-    data: products,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit) || 1,
-    },
+  sendPaginatedList(res, 'products', products, {
+    page,
+    limit,
+    total,
+    pages: Math.ceil(total / limit) || 1,
   });
 };
 

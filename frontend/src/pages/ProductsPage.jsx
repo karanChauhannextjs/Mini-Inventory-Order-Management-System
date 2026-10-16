@@ -17,6 +17,7 @@ import ClearableInput from '@/components/ClearableInput';
 import DismissibleAlert from '@/components/DismissibleAlert';
 import CategoryFormDialog from '@/components/CategoryFormDialog';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
+import EmptyListBanner from '@/components/EmptyListBanner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -48,6 +49,7 @@ import { queryKeys } from '@/lib/query-keys';
 import { notifySuccess } from '@/lib/toast';
 import { FieldError, RequiredLabel } from '@/components/FormHelpers';
 import { notifyError } from '@/lib/toast';
+import { tableEmptyMessage } from '@/lib/list-empty';
 import { validateProductForm } from '@/lib/validation';
 import { formatDate, money } from '@/utils/format';
 
@@ -268,6 +270,15 @@ export default function ProductsPage() {
   );
 
   const pagination = data?.pagination ?? { page: 1, pages: 1, total: 0 };
+  const hasFilters = Boolean(debouncedSearch || categoryFilter || statusFilter);
+  const listEmpty = data?.isEmpty === true && !hasFilters;
+  const productsEmptyMessage = tableEmptyMessage(data?.message, {
+    filtered: hasFilters,
+    fallback: {
+      empty: 'No products yet. Use Add product to create your first item.',
+      filtered: 'No products match your search or filters.',
+    },
+  });
 
   return (
     <div>
@@ -329,13 +340,20 @@ export default function ProductsPage() {
         </CardContent>
       </Card>
 
+      {!isLoading && listEmpty && (
+        <EmptyListBanner
+          title="No products yet"
+          description={data?.message}
+        />
+      )}
+
       <Card>
         <CardContent className="p-0">
           <DataTable
             columns={columns}
             data={data?.data ?? []}
             loading={isLoading}
-            emptyMessage="No products found."
+            emptyMessage={productsEmptyMessage}
           />
           <TablePagination
             page={pagination.page}

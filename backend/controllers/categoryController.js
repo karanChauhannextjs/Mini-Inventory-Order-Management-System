@@ -5,6 +5,7 @@ const { isValidObjectId, parsePagination } = require('../utils/validators');
 const { validateCategoryPayload } = require('../utils/fieldValidators');
 const { ownerQuery, findOwnedById } = require('../utils/ownership');
 const { caseInsensitiveRegex } = require('../utils/search');
+const { sendPaginatedList } = require('../utils/listResponse');
 
 const createCategory = async (req, res) => {
   const category = await Category.create({
@@ -34,16 +35,11 @@ const getCategories = async (req, res) => {
     Category.countDocuments(filter),
   ]);
 
-  res.status(200).json({
-    success: true,
-    message: 'Categories retrieved successfully',
-    data: categories,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit) || 1,
-    },
+  sendPaginatedList(res, 'categories', categories, {
+    page,
+    limit,
+    total,
+    pages: Math.ceil(total / limit) || 1,
   });
 };
 

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Eye, MoreHorizontal, Plus } from 'lucide-react';
 import { deleteOrder, getOrders } from '@/api';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
+import EmptyListBanner from '@/components/EmptyListBanner';
 import DataTable from '@/components/DataTable';
 import OrderStatusControl from '@/components/OrderStatusControl';
 import PageHeader from '@/components/PageHeader';
@@ -29,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/useDebounce';
+import { tableEmptyMessage } from '@/lib/list-empty';
 import { formatDate, money } from '@/utils/format';
 
 const PAGE_SIZE = 10;
@@ -152,6 +154,15 @@ export default function OrdersPage() {
   );
 
   const pagination = data?.pagination ?? { page: 1, pages: 1, total: 0 };
+  const hasFilters = Boolean(debouncedSearch || status);
+  const listEmpty = data?.isEmpty === true && !hasFilters;
+  const ordersEmptyMessage = tableEmptyMessage(data?.message, {
+    filtered: hasFilters,
+    fallback: {
+      empty: 'No orders yet. Create your first order to get started.',
+      filtered: 'No orders match your search or filters.',
+    },
+  });
 
   return (
     <div>
@@ -191,9 +202,18 @@ export default function OrdersPage() {
         </CardContent>
       </Card>
 
+      {!isLoading && listEmpty && (
+        <EmptyListBanner title="No orders yet" description={data?.message} />
+      )}
+
       <Card>
         <CardContent className="p-0">
-          <DataTable columns={columns} data={data?.data ?? []} loading={isLoading} />
+          <DataTable
+            columns={columns}
+            data={data?.data ?? []}
+            loading={isLoading}
+            emptyMessage={ordersEmptyMessage}
+          />
           <TablePagination
             page={pagination.page}
             pages={pagination.pages}

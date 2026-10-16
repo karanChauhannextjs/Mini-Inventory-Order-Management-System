@@ -7,6 +7,7 @@ const { isValidObjectId, parsePagination } = require('../utils/validators');
 const { mergeItemRequests, buildOrderLineItems } = require('../utils/orderHelpers');
 const { ownerQuery, findOwnedById } = require('../utils/ownership');
 const { caseInsensitiveRegex } = require('../utils/search');
+const { sendPaginatedList } = require('../utils/listResponse');
 
 const isTransientTransactionError = (error) =>
   error?.errorLabels?.has?.('TransientTransactionError') || error?.code === 112;
@@ -148,16 +149,11 @@ const getOrders = async (req, res) => {
     Order.countDocuments(filter),
   ]);
 
-  res.status(200).json({
-    success: true,
-    message: 'Orders retrieved successfully',
-    data: orders,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit) || 1,
-    },
+  sendPaginatedList(res, 'orders', orders, {
+    page,
+    limit,
+    total,
+    pages: Math.ceil(total / limit) || 1,
   });
 };
 
