@@ -77,6 +77,12 @@ npm start
 
 Health check: `GET /api/health`
 
+## Swagger API documentation
+
+With the backend running, open [http://localhost:5000/api-docs](http://localhost:5000/api-docs) for the interactive Swagger UI. The raw OpenAPI 3.0 document is also available at `GET /api-docs.json`.
+
+To try protected endpoints, first call **POST `/api/auth/register`** or **POST `/api/auth/login`**, copy the returned `data.token`, then click **Authorize** in Swagger and paste the token. All categories, products, customers, orders, and dashboard endpoints require that bearer token.
+
 ## Run tests
 
 ```bash

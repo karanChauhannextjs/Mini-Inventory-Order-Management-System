@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const openApiDocument = require('./docs/openapi');
 const errorHandler = require('./middleware/errorHandler');
 const apiHeaders = require('./middleware/apiHeaders');
 const notFoundHandler = require('./middleware/notFoundHandler');
@@ -24,6 +26,10 @@ app.use(
   })
 );
 app.use(express.json());
+app.get('/api-docs.json', (req, res) => res.json(openApiDocument));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument, {
+  customSiteTitle: 'Mini Inventory API Docs',
+}));
 app.use('/api', apiHeaders);
 
 app.get('/api/health', (req, res) => {

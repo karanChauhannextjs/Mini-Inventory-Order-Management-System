@@ -32,6 +32,8 @@ npm run dev
 
 API base: `http://localhost:5000` (health: `GET /api/health`).
 
+Interactive API documentation: [http://localhost:5000/api-docs](http://localhost:5000/api-docs). Register or log in in Swagger, copy `data.token`, and use **Authorize** to test protected endpoints. The OpenAPI document is available at `GET /api-docs.json`.
+
 ### Frontend
 
 ```bash
